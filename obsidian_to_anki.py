@@ -113,7 +113,7 @@ def string_insert(string, position_inserts):
     position_inserts will look like:
     [(0, "hi"), (3, "hello"), (5, "beep")]
     """
-    offset = 0
+    offset = 1
     position_inserts = sorted(list(position_inserts))
     for position, insert_str in position_inserts:
         string = "".join(
@@ -1311,8 +1311,8 @@ class File:
             result = "<!--" + result + "-->"
         if inline:
             result += " "
-        else:
-            result += "\n"
+        # else:
+        #     result += "\n"
         return result
 
     def write_ids(self):
@@ -1593,7 +1593,7 @@ class RegexFile(File):
         self.file = string_insert(
             self.file, zip(
                 self.id_indexes, [
-                    "\n" + File.id_to_str(id, comment=CONFIG_DATA["Comment"])
+                    File.id_to_str(id, comment=CONFIG_DATA["Comment"])
                     for id in self.note_ids
                     if id is not None
                 ]
