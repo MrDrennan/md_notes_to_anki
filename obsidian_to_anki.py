@@ -71,7 +71,8 @@ md_parser = markdown.Markdown(
         'tables',
         'nl2br',
         'sane_lists'
-    ]
+    ],
+    tab_length=2
 )
 
 ANKI_PORT = 8765
