@@ -145,10 +145,11 @@ def spans(pattern, string):
     return [match.span() for match in pattern.finditer(string)]
 
 
-def contained_in(span, spans):
-    """Return whether span is contained in spans (+- 1 leeway)"""
+def overlaps(span, spans):
+    """Return whether span overlaps in spans (excluding +- 1 leeway)"""
+    # 4 8  7 10
     return any(
-        span[0] >= start - 1 and span[1] <= end + 1
+        span[0] < end - 1 and start + 1 < span[1]
         for start, end in spans
     )
 
@@ -158,7 +159,7 @@ def findignore(pattern, string, ignore_spans):
     return (
         match
         for match in pattern.finditer(string)
-        if not contained_in(match.span(), ignore_spans)
+        if not overlaps(match.span(), ignore_spans)
     )
 
 
