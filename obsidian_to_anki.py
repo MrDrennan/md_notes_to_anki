@@ -20,7 +20,7 @@ try:
     import gooey
     GOOEY = True
 except ModuleNotFoundError:
-    print("Gooey not installed, switching to cli...")
+    # print("Gooey not installed, switching to cli...")
     GOOEY = False
 
 logging.basicConfig(
