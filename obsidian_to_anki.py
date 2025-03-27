@@ -64,15 +64,21 @@ DATA_PATH = os.path.expanduser(
     )
 )
 
-md_parser = markdown.Markdown(
+md_parser = markdown.Markdown( # https://python-markdown.github.io/reference/
     extensions=[
-        'fenced_code',
+        # 'fenced_code',
+        'pymdownx.superfences', # https://facelessuser.github.io/pymdown-extensions/extensions/superfences/
         'footnotes',
         'md_in_html',
         'tables',
         'nl2br',
         'sane_lists'
     ],
+    extension_configs = {
+        'pymdownx.superfences': {
+            'disable_indented_code_blocks': True
+        }
+    },
     tab_length=2
 )
 
