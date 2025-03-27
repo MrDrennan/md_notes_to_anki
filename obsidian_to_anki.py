@@ -29,6 +29,7 @@ logging.basicConfig(
     format='%(asctime)s:::%(levelname)s:::%(funcName)s:::%(message)s'
 )
 
+DEBUG = False
 MEDIA = dict()
 
 ID_PREFIX = "ID: "
@@ -423,7 +424,10 @@ class FormatConverter:
     @staticmethod
     def format(note_text, cloze=False):
         """Apply all format conversions to note_text."""
-        note_text = FormatConverter.obsidian_to_anki_math(note_text)
+
+        if (DEBUG):
+            print("\nBefore Format:", note_text)
+        # note_text = FormatConverter.obsidian_to_anki_math(note_text)
         # Extract the parts that are anki math
         math_matches = [
             math_match.group(0)
@@ -490,6 +494,9 @@ class FormatConverter:
         ):
             note_text = note_text[len(FormatConverter.PARA_OPEN):]
             note_text = note_text[:-len(FormatConverter.PARA_CLOSE)]
+
+        if (DEBUG):
+            print(note_text)
         return note_text
 
 
@@ -1508,6 +1515,8 @@ class RegexFile(File):
         regexp = re.compile(
             regexp, flags=re.MULTILINE
         )
+        if (DEBUG):
+            print("\nIgnore Before:", self.ignore_spans)
         for match in findignore(regexp_tags_id, self.file, self.ignore_spans):
             # This note has id, so we update it
             self.ignore_spans.append(match.span())
@@ -1527,6 +1536,8 @@ class RegexFile(File):
             else:
                 self.notes_to_edit.append(parsed)
         for match in findignore(regexp_id, self.file, self.ignore_spans):
+            if (DEBUG):
+                print("\nUpdate Match:", match)
             # This note has id, so we update it
             self.ignore_spans.append(match.span())
             parsed = RegexNote(match, note_type, tags=False, id=True).parse(
@@ -1561,7 +1572,9 @@ class RegexFile(File):
             )
             self.id_indexes.append(match.end())
         for match in findignore(regexp, self.file, self.ignore_spans):
-            # This note has no id, so we update it
+            if (DEBUG):
+                print("\nAdd Match:", match)
+            # This note has no id, so we add it
             self.ignore_spans.append(match.span())
             parsed = RegexNote(match, note_type, tags=False, id=False).parse(
                 self.target_deck,
@@ -1576,6 +1589,10 @@ class RegexFile(File):
                 parsed.note
             )
             self.id_indexes.append(match.end())
+
+        if (DEBUG):
+            print("\nIgnore After:", self.ignore_spans)
+
 
     def fix_newline_ids(self):
         """Removes double newline then ids from self.file."""
