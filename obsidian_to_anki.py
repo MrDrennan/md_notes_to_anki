@@ -1436,12 +1436,6 @@ class RegexFile(File):
         """Mark sections of the file as places not to expect a note."""
         self.ignore_spans += spans(App.NOTE_REGEXP, self.file)
         self.ignore_spans += spans(App.INLINE_REGEXP, self.file)
-        self.ignore_spans += spans(
-            FormatConverter.OBS_CODE_REGEXP, self.file
-        )
-        self.ignore_spans += spans(
-            FormatConverter.OBS_DISPLAY_CODE_REGEXP, self.file
-        )
 
     def scan_file(self):
         """Sort notes from file into adding vs editing."""
