@@ -276,9 +276,6 @@ class FormatConverter:
     ANKI_DISPLAY_START = r"\["
     ANKI_DISPLAY_END = r"\]"
 
-    ANKI_MATH_REGEXP = re.compile(r"(\\\[[\s\S]*?\\\])|(\\\([\s\S]*?\\\))")
-
-    MATH_REPLACE = "OBSTOANKIMATH"
     INLINE_CODE_REPLACE = "OBSTOANKICODEINLINE"
     DISPLAY_CODE_REPLACE = "OBSTOANKICODEDISPLAY"
 
@@ -332,16 +329,6 @@ class FormatConverter:
         result = FormatConverter.ANKI_DISPLAY_START + found_string
         result += FormatConverter.ANKI_DISPLAY_END
         return result
-
-    @staticmethod
-    def obsidian_to_anki_math(note_text):
-        """Convert Obsidian-formatted math to Anki-formatted math."""
-        return FormatConverter.OBS_INLINE_MATH_REGEXP.sub(
-            FormatConverter.inline_anki_repl,
-            FormatConverter.OBS_DISPLAY_MATH_REGEXP.sub(
-                FormatConverter.display_anki_repl, note_text
-            )
-        )
 
     @staticmethod
     def cloze_repl(match):
@@ -435,26 +422,17 @@ class FormatConverter:
 
         if (DEBUG):
             print("\nBefore Format:", note_text)
-        # note_text = FormatConverter.obsidian_to_anki_math(note_text)
-        # Extract the parts that are anki math
-        math_matches = [
-            math_match.group(0)
-            for math_match in FormatConverter.ANKI_MATH_REGEXP.finditer(
-                note_text
-            )
-        ]
-        # Replace them to be later added back, so they don't interfere
-        # with markdown parsing
-        note_text = FormatConverter.ANKI_MATH_REGEXP.sub(
-            FormatConverter.MATH_REPLACE, note_text
-        )
-        # Now same with code!
+
+        # Extract the parts that are code
         inline_code_matches = [
             code_match.group(0)
             for code_match in FormatConverter.OBS_CODE_REGEXP.finditer(
                 note_text
             )
         ]
+
+        # Replace them to be later added back, so they don't interfere
+        # with markdown parsing
         note_text = FormatConverter.OBS_CODE_REGEXP.sub(
             FormatConverter.INLINE_CODE_REPLACE, note_text
         )
@@ -469,6 +447,8 @@ class FormatConverter:
         )
         if cloze:
             note_text = FormatConverter.curly_to_cloze(note_text)
+
+        # Add back the parts that are code
         for code_match in inline_code_matches:
             note_text = note_text.replace(
                 FormatConverter.INLINE_CODE_REPLACE,
@@ -482,13 +462,7 @@ class FormatConverter:
                 1
             )
         note_text = FormatConverter.markdown_parse(note_text)
-        # Add back the parts that are anki math
-        for math_match in math_matches:
-            note_text = note_text.replace(
-                FormatConverter.MATH_REPLACE,
-                html.escape(math_match),
-                1
-            )
+
         FormatConverter.get_images(note_text)
         FormatConverter.get_audio(note_text)
         note_text = FormatConverter.fix_image_src(note_text)
@@ -1462,12 +1436,6 @@ class RegexFile(File):
         """Mark sections of the file as places not to expect a note."""
         self.ignore_spans += spans(App.NOTE_REGEXP, self.file)
         self.ignore_spans += spans(App.INLINE_REGEXP, self.file)
-        self.ignore_spans += spans(
-            FormatConverter.OBS_INLINE_MATH_REGEXP, self.file
-        )
-        self.ignore_spans += spans(
-            FormatConverter.OBS_DISPLAY_MATH_REGEXP, self.file
-        )
         self.ignore_spans += spans(
             FormatConverter.OBS_CODE_REGEXP, self.file
         )
